@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ],
+  "env": {
+    "GOOGLE_API_KEY":  "@google_api_key",
+    "GROQ_API_KEY_1":  "@groq_api_key_1",
+    "GROQ_API_KEY_2":  "@groq_api_key_2",
+    "GROQ_API_KEY_3":  "@groq_api_key_3",
+    "GROQ_MODEL":      "@groq_model"
+  }
+}
