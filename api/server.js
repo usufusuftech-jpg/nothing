@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const cors    = require('cors');
-const dotenv  = require('dotenv');
+const cors = require('cors');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -23,6 +23,7 @@ app.use(cors({
    CONFIG
 ============================================================ */
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || '';
+
 const GROQ_API_KEYS = [
   process.env.GROQ_API_KEY_1 || '',
   process.env.GROQ_API_KEY_2 || '',
@@ -35,9 +36,12 @@ const REQUEST_TIMEOUT_MS = 3000;
 /* ============================================================
    SYSTEM PROMPT
 ============================================================ */
-const SYSTEM_PROMPT = `You are Nexus AI — the official intelligent assistant of InnoExpoGL, a non-profit science and AI research organization dedicated to advancing human knowledge through open collaboration, innovation, and education.
+const SYSTEM_PROMPT = `
+You are Nexus AI — the official intelligent assistant of InnoExpoGL.
 
-You assist researchers, students, and science enthusiasts. Be helpful, clear, and encouraging. Focus on science, AI, and research topics only.`;
+You assist users with science, AI, coding, and research topics.
+Be helpful, clear, and concise.
+`;
 
 /* ============================================================
    FETCH WITH TIMEOUT
@@ -47,8 +51,7 @@ async function fetchWithTimeout(url, options, ms = REQUEST_TIMEOUT_MS) {
   const timer = setTimeout(() => controller.abort(), ms);
 
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
-    return res;
+    return await fetch(url, { ...options, signal: controller.signal });
   } finally {
     clearTimeout(timer);
   }
@@ -113,28 +116,29 @@ async function tryGroq(apiKey, userMsg, history) {
 }
 
 /* ============================================================
-   MAIN AI HANDLER
+   AI ROUTER
 ============================================================ */
 async function getAIResponse(message, history) {
-  // Try Gemini
+  // Try Gemini first
   try {
     const reply = await tryGoogleGemini(message, history);
     if (reply) return { reply, provider: 'gemini' };
-  } catch (e) {}
+  } catch (_) {}
 
-  // Try Groq keys
+  // Fallback Groq keys
   for (let i = 0; i < GROQ_API_KEYS.length; i++) {
     try {
       const reply = await tryGroq(GROQ_API_KEYS[i], message, history);
       if (reply) return { reply, provider: `groq-${i + 1}` };
-    } catch (e) {}
+    } catch (_) {}
   }
 
   throw new Error('All providers failed');
 }
 
 /* ============================================================
-   ROUTES
+   ROUTES (IMPORTANT)
+   Vercel strips /api → so Express sees /chat
 ============================================================ */
 
 // POST /api/chat
@@ -152,7 +156,7 @@ app.post('/chat', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(503).json({
-      error: 'AI service unavailable. Try again.',
+      error: 'AI service unavailable',
     });
   }
 });
@@ -167,6 +171,6 @@ app.get('/health', (req, res) => {
 });
 
 /* ============================================================
-   EXPORT (IMPORTANT FOR VERCEL)
+   EXPORT FOR VERCEL
 ============================================================ */
 module.exports = app;
