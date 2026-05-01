@@ -19,12 +19,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "GOOGLE_API_KEY": "@google_api_key",
-    "GROQ_API_KEY_1": "@groq_api_key_1",
-    "GROQ_API_KEY_2": "@groq_api_key_2",
-    "GROQ_API_KEY_3": "@groq_api_key_3",
-    "GROQ_MODEL": "@groq_model"
-  }
+  ]
 }
