@@ -1,5 +1,0 @@
-GOOGLE_API_KEY = your_key
-GROQ_API_KEY_1 = your_key
-GROQ_API_KEY_2 = your_key
-GROQ_API_KEY_3 = your_key
-GROQ_MODEL = llama-3.3-70b-versatile
